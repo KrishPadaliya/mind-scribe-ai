@@ -1,0 +1,4 @@
+project_id = "sqxmmkrkvyjwiqqpbzax"
+
+[functions.analyze-journal]
+verify_jwt = true
