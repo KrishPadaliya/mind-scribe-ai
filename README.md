@@ -11,7 +11,7 @@ Each entry is analyzed to highlight stress levels, uncover emotional patterns �
 The goal is simple: to empower users with clarity, self-awareness, and gentle guidance 🌱 — turning daily journaling into a tool for growth and mental wellness.
 
 ## Website Link
-“filler space”
+https://mindscribe-ai-journal.netlify.app/
 
 ## Stack
 - React + TypeScript (Vite)
