@@ -7,12 +7,22 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [alreadySignedUpOpen, setAlreadySignedUpOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -44,20 +54,38 @@ const Auth = () => {
         });
         navigate("/dashboard");
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { error: signUpError } = await supabase.auth.signUp({
           email,
           password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
-          },
         });
 
-        if (error) throw error;
+        if (signUpError) {
+          const message = (signUpError.message || "").toLowerCase();
+          if (message.includes("already") || message.includes("exists") || message.includes("registered")) {
+            setAlreadySignedUpOpen(true);
+            return;
+          }
+          throw signUpError;
+        }
+
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (signInError) {
+          toast({
+            title: "Account created",
+            description: signInError.message || "Please sign in to continue.",
+          });
+          return;
+        }
 
         toast({
-          title: "Account created!",
-          description: "Welcome to MindScribe. Please check your email to confirm your account.",
+          title: "Welcome!",
+          description: "Account created and signed in.",
         });
+        navigate("/dashboard");
       }
     } catch (error: any) {
       toast({
@@ -126,6 +154,27 @@ const Auth = () => {
             </div>
           </CardContent>
         </Card>
+
+        <AlertDialog open={alreadySignedUpOpen} onOpenChange={setAlreadySignedUpOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>You are alredy signed up</AlertDialogTitle>
+              <AlertDialogDescription>
+                Please sign in with your email and password instead.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction
+                onClick={() => {
+                  setIsLogin(true);
+                  setAlreadySignedUpOpen(false);
+                }}
+              >
+                Go to sign in
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
