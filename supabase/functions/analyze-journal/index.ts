@@ -26,7 +26,7 @@ serve(async (req) => {
       try {
         // Analyze sentiment
         const sentimentResponse = await fetch(
-          "https://api-inference.huggingface.co/models/distilbert-base-uncased-finetuned-sst-2-english",
+          "https://router.huggingface.co/hf-inference/models/distilbert-base-uncased-finetuned-sst-2-english",
           {
             method: "POST",
             headers: {
